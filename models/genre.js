@@ -9,7 +9,7 @@ const GenreSchema = new Schema({
 // Virtual for Genre url
 GenreSchema.virtual('url').get(function () {
   // does not use point because need to reference 'this' object
-  return `/catalog/users/${this._id}`;
+  return `/catalog/genre/${this._id}`;
 });
 
 // Export model
