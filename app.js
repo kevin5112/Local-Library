@@ -8,18 +8,40 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var catalogRouter = require('./routes/catalog');
 
+const compression = require('compression');
+const helmet = require('helmet');
+
 var app = express();
+
+const RateLimit = require('express-rate-limit');
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 20,
+});
+
+app.use(limiter);
+
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      'script-src': ["'self'", 'code.jquery.com', 'cdn.jsdelivr.net'],
+    },
+  })
+);
 
 // Set up mongoose connection
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', false);
-const mongoDB =
-  'mongodb+srv://kchen1096:hbHtO4e328RI8bWH@cluster0.kqoke6e.mongodb.net/local_library?retryWrites=true&w=majority&appName=Cluster0';
+// const dev_db_url =
+//   'mongodb+srv://kchen1096:hbHtO4e328RI8bWH@cluster0.kqoke6e.mongodb.net/local_library?retryWrites=true&w=majority&appName=Cluster0';
+const mongoDB = process.env.MONGODB_URI;
 
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect(mongoDB);
 }
+
+app.use(compression());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
